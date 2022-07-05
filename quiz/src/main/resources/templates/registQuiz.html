@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+		<link th:href="@{/css/bootstrap.min.css}" 
+			href="../css/bootstrap.min.css" rel="stylesheet">
+	<title>Insert title here</title>
+	<script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+</head>
+<style>
+	#all{
+		width : 100%;
+		text-align : center;
+		vertical-align : top;
+	}
+	
+	.in{
+		display : inline-block;
+	}
+	ul{
+		height : 500px;
+		overflow:scroll;			
+	}
+	
+	td, td textarea, td input ,  td select{
+		height : 50px;
+	}
+	td input{
+		width : 100px;
+	}
+	td textarea{
+		width : 200px;
+	}	
+
+
+</style>
+
+<body>
+registQuiz
+	<div class="in">
+		<h3>대분류</h3>
+		<input list="testCategoryList" class="text test" type="text"/>
+		<datalist id="testCategoryList">
+		
+		</datalist>
+	</div>
+	<div class="in">
+		시행월 <input type="month"/>
+		회차 : <input type="number"/>
+	</div>
+	
+	<table class="table">
+	<thead>
+		<tr>
+			<th>번호</th>
+			<th>과목</th>
+			<th>내용</th>
+			<th>해설</th>
+			<th>보기1</th>
+			<th>보기2</th>
+			<th>보기3</th>
+			<th>보기4</th>
+			<th>삭제</th>
+		</tr>
+	</thead>
+	<tbody class="table-group-divider">
+		<tr>
+			<td>1</td>
+			<td><select></select></td>
+			<td><textarea></textarea></td>
+			<td><textarea></textarea></td>
+			<td><input type="text"/></td>
+			<td><input type="text"/></td>
+			<td><input type="text"/></td>
+			<td><input type="text"/></td>			
+			<td><input type="button" class="btn-close" disabled/></td>		
+		</tr>
+	</tbody>
+	</table>
+	<input id="addBtn" type="button" value="+"/>
+	
+</body>
+<script>
+let now_test_category_no;
+
+selectTestCategoryList();
+//시험종류 검색
+$('.text.test').keyup(function(){
+	selectTestCategoryList(this.value);	
+});
+
+
+
+function selectTestCategoryList(keyword=''){
+		$.ajax({
+			type : 'post',
+			url : 'category/selectTestCategoryList',
+			data : JSON.stringify({'test_category':keyword}),
+			dataType : 'json',
+			contentType : 'application/json',
+			success : function(data){
+				let txt = '';
+				data.test_category_list.forEach(function(item,idx){
+					txt += 
+					`<option 
+						class="test_category ${item.test_category_seq}" 
+						onclick="clickTestCategory(this)"
+						value="${item.test_category}"		
+						label="${item.test_category_seq}"			
+					/>
+					`;
+				});
+				$('#testCategoryList').empty();
+				$('#testCategoryList').append(txt);
+			},
+			error : function(e){
+				console.log(e);		
+			}
+		});
+}
+
+
+let lastNum = 1;
+$('#addBtn').click((e)=>{
+	lastNum += 1;
+	let txt = '';
+	txt += 		`<tr>
+			<td class="quiz_no">${lastNum}</td>
+			<td><select></select></td>
+			<td><textarea></textarea></td>
+			<td><textarea></textarea></td>
+			<td><input type="text"/></td>
+			<td><input type="text"/></td>
+			<td><input type="text"/></td>
+			<td><input type="text"/></td>		
+			<td><input type="button" class="btn-close" onclick="removeForm(this)"/></td>				
+		</tr>`;
+	$('tbody').append(txt);
+	
+	});
+	
+const removeForm = (e) =>{
+	$(e).parent().parent().remove();
+	lastNum -= 1;
+	let quiz_no = document.getElementsByClassName('quiz_no');
+	for(let i = 0 ; i < quiz_no.length ; i++){
+		quiz_no[i].innerHTML = i+2;
+	}
+};
+
+
+</script>
+
+
+</html>

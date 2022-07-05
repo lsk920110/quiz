@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<link th:href="@{/css/bootstrap.min.css}" 
+			href="../css/bootstrap.min.css" rel="stylesheet">
+	<title>Insert title here</title>
+	<script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+
+	
+</head>
+<style>
+	#all{
+		width : 100%;
+		text-align : center;
+		vertical-align : top;
+	}
+	
+	.in{
+		display : inline-block;
+	}
+	ul{
+		height : 500px;
+		overflow:scroll;			
+	}
+
+</style>
+<body>
+registCategory(large medium small)
+<div id="all">
+	<div class="in">
+		<h3>대분류</h3>
+		<input class="text test" type="text"/>
+		<button type="button" class="btn btn-primary regist test" id="liveAlertBtn">add</button>
+		<div id="liveAlertPlaceholder"></div>
+		<ul id="testCategoryList" class="list-group">
+			<li style="color : red">정보처리기사</li>
+			<li style="background-color : blue;">정보처리산업기사</li>
+			<li>정보처리기능사</li>
+		</ul>
+	</div>
+	<div class="in">
+		<h3>중분류</h3>
+		<input class="text subject" type="text"/>
+		<button type="button" class="btn btn-primary regist subject" id="liveAlertBtn2">add</button>
+		<div id="liveAlertPlaceholder2"></div>
+		<ul id="subjectCaegoryList" class="list-group">
+			<li>전자계산기</li>
+		</ul>
+	</div>
+</div>
+
+
+</body>
+<script>
+let now_test_category_no;
+let now_subject_category_no;
+
+selectTestCategoryList();
+
+//시험종류(test_category) 등록
+$('.regist.test').click(function(){
+	let testCategory = $('.text.test').val();
+	registTestCategory(testCategory);
+});
+//과목종류(subject_category)등록
+$('.regist.subject').click(function(){
+	let SubjectCategory = $('.text.subject').val();
+	registSubjectCategory(now_test_category_no,SubjectCategory);
+});
+//시험종류 검색
+$('.text.test').keyup(function(){
+	selectTestCategoryList(this.value);	
+});
+//과목 검색
+$('.text.subject').keyup(function(){
+	selectSubjectCategoryList(now_test_category_no,this.value);	
+});
+
+function clickTestCategory(e){
+	$('li.test_category').removeClass('list-group-item-primary');
+	$(e).addClass('list-group-item-primary');
+	console.log(e.classList[1]);
+	now_test_category_no = e.classList[1];
+	selectSubjectCategoryList(e.classList[1],$('.text.subject').val());
+}
+
+function selectTestCategoryList(keyword=''){
+		$.ajax({
+			type : 'post',
+			url : 'category/selectTestCategoryList',
+			data : JSON.stringify({'test_category':keyword}),
+			dataType : 'json',
+			contentType : 'application/json',
+			success : function(data){
+				let txt = '';
+				data.test_category_list.forEach(function(item,idx){
+					txt += `<li class="test_category ${item.test_category_seq} list-group-item" onclick="clickTestCategory(this)">
+					${item.test_category}
+					</li>`;
+				});
+				$('#testCategoryList').empty();
+				$('#testCategoryList').append(txt);
+			},
+			error : function(e){
+				console.log(e);		
+			}
+		});
+}
+function selectSubjectCategoryList(selectSubjectCategory,keyword=''){
+	
+		$.ajax({
+			type : 'post',
+			url : 'category/selectSubjectCategoryList',
+			data : JSON.stringify({'test_category_seq':selectSubjectCategory,'subject_category':keyword}),
+			dataType : 'json',
+			contentType : 'application/json',
+			success : function(data){
+				let txt = '';
+				data.subjectCategoryList.forEach(function(item,idx){
+					txt += `<li class="subject_category ${item.subject_category_seq} list-group-item" 
+					onclick="clickSubjectCategory(this)">
+					${item.subject_category}
+					</li>`;
+				});
+				$('#subjectCaegoryList').empty();
+				$('#subjectCaegoryList').append(txt);
+			},
+			error : function(e){
+				console.log(e);		
+			}
+		});
+}
+
+function registTestCategory(inputTextTestCategory){
+		console.log('asd');
+		$.ajax({
+			type : 'post',
+			url : 'category/registTestCategory',
+			data : JSON.stringify({'test_category':inputTextTestCategory}),
+			dataType : 'json',
+			contentType : 'application/json',
+			success : function(data){
+				console.log(data);
+				$('#liveAlertPlaceholder').empty();
+				if(data.code == "1111"){
+					console.log('1111');
+					alert('이미존재하는 이름입니다.', 'success');
+				}
+				
+				selectTestCategoryList();
+			},
+			error : function(e){
+				console.log(e);
+				alert('등록에 실패했습니다');
+			}
+		});
+}
+
+function registSubjectCategory(test_category_seq,inputTextSubjectCategory){
+		$.ajax({
+			type : 'post',
+			url : 'category/registSubjectCategory',
+			data : JSON.stringify({'test_category_seq':test_category_seq,'subject_category':inputTextSubjectCategory}),
+			dataType : 'json',
+			contentType : 'application/json',
+			success : function(data){
+				console.log(data);
+				$('#liveAlertPlaceholder2').empty();
+				if(data.code == "1111"){
+					console.log('1111');
+					alert2('이미존재하는 이름입니다.', 'success');
+				}
+				selectSubjectCategoryList(now_test_category_no);
+			},
+			error : function(e){
+				console.log(e);
+				alert('등록에 실패했습니다');
+			}
+		});
+}
+
+
+
+const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+const alert = (message, type) => {
+  const wrapper = document.createElement('div')
+  wrapper.innerHTML = [
+    `<div class="alert alert-${type} alert-dismissible" role="alert">`,
+    `   <div>${message}</div>`,
+    '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onclick="btnClose(this)"></button>',
+    '</div>'
+  ].join('')
+  alertPlaceholder.append(wrapper)
+}
+const alertPlaceholder2 = document.getElementById('liveAlertPlaceholder2')
+const alert2 = (message, type) => {
+  const wrapper = document.createElement('div')
+  wrapper.innerHTML = [
+    `<div class="alert alert-${type} alert-dismissible" role="alert">`,
+    `   <div>${message}</div>`,
+    '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onclick="btnClose(this)"></button>',
+    '</div>'
+  ].join('')
+  alertPlaceholder2.append(wrapper)
+}
+
+const btnClose = (e) =>{
+	console.log($(e).parent('div'));
+	$(e).parent('div').remove();
+}
+
+
+//const alertTrigger = document.getElementById('liveAlertBtn')
+/*
+if (alertTrigger) {
+  alertTrigger.addEventListener('click', () => {
+    alert('이미존재하는 이름입니다.', 'success')
+  })
+}
+*/
+
+</script>
+
+
+
+
+
+</html>

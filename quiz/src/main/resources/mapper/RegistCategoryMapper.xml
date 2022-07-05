@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="quiz.bank.quiz.regist.mapper.RegistCategoryMapper">
+	<select id="selectTestCategoryOverLapChk" 
+					resultType="int"
+					parameterType="quiz.bank.quiz.regist.vo.RegistTestCategoryParamVO">
+		SELECT  	count(*)
+		  FROM	test_category
+		WHERE	test_category = #{test_category}
+			 AND	use_yn = 'Y'
+	</select>
+	<select id="selectSubjectCategoryOverLapChk"
+					resultType="int"
+					parameterType="quiz.bank.quiz.regist.vo.RegistSubjectCategoryParamVO">
+		SELECT  	count(*)
+		  FROM	subject_category
+		WHERE	subject_category = #{subject_category}
+			 AND	test_category_seq = #{test_category_seq}
+			 AND	use_yn = 'Y'
+	</select>
+	
+	<insert id="registTestCategory" parameterType="quiz.bank.quiz.regist.vo.RegistTestCategoryParamVO">
+		INSERT INTO test_category
+			(
+				test_category_seq
+				,test_category
+				,use_yn
+				,pass_criteria
+			)
+		VALUES
+			(
+				#{test_category_seq}
+				,#{test_category}
+				,'Y'
+				,#{pass_criteria}	
+			)
+			ON DUPLICATE KEY UPDATE
+			test_category = #{test_category}
+			,use_yn = #{use_yn}
+			,pass_criteria = #{pass_criteria}
+	</insert>
+	
+	<insert id="registSubjectCategory" parameterType="quiz.bank.quiz.regist.vo.RegistSubjectCategoryParamVO">
+		INSERT INTO subject_category
+			(
+				test_category_seq
+				,subject_category_seq
+				,subject_category
+				,use_yn
+				,pass_criteria
+			)
+		VALUES
+			(
+				#{test_category_seq}
+				,#{subject_category_seq}
+				,#{subject_category}
+				,'Y'
+				,#{pass_criteria}
+			)
+			ON DUPLICATE KEY UPDATE
+				subject_category = #{subject_category}
+				,use_yn = #{use_yn}
+				,pass_criteria = #{pass_criteria}
+	</insert>
+	
+	
+	
+	<select id="selectTestCategoryList" 
+	resultType="quiz.bank.quiz.regist.vo.TestCategoryVO"
+	parameterType="quiz.bank.quiz.regist.vo.TestCategoryVO">
+		SELECT	test_category_seq
+					,	test_category
+		 FROM	test_category
+	   WHERE	use_yn = 'Y'
+	   		AND	test_category LIKE CONCAT('%',#{test_category},'%')
+	</select>
+
+	<select id="selectSubjectCategoryList" 
+	resultType="quiz.bank.quiz.regist.vo.SubjectCategoryVO"
+	parameterType="quiz.bank.quiz.regist.vo.SelectCategoryParamVO">
+		SELECT	subject_category_seq
+					,	subject_category
+					,	test_category_seq
+		 FROM	subject_category
+	   WHERE	use_yn = 'Y'
+	   		AND	test_category_seq = #{test_category_seq}
+			AND	subject_category LIKE CONCAT('%',#{subject_category},'%')
+	   		
+	</select>
+	
+
+</mapper>
