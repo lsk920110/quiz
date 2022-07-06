@@ -40,16 +40,14 @@
 registQuiz
 	<div class="in">
 		<h3>대분류</h3>
-		<input list="testCategoryList" class="text test" type="text"/>
-		<datalist id="testCategoryList">
+		<select id="testCategoryList" class="text test" type="text"></select>
 		
-		</datalist>
 	</div>
 	<div class="in">
 		시행월 <input type="month"/>
 		회차 : <input type="number"/>
 	</div>
-	
+	<button id="save">save</button>
 	<table class="table">
 	<thead>
 		<tr>
@@ -67,13 +65,13 @@ registQuiz
 	<tbody class="table-group-divider">
 		<tr>
 			<td>1</td>
-			<td><select></select></td>
-			<td><textarea></textarea></td>
-			<td><textarea></textarea></td>
-			<td><input type="text"/></td>
-			<td><input type="text"/></td>
-			<td><input type="text"/></td>
-			<td><input type="text"/></td>			
+			<td><select  class="subjectSelector"></select></td>
+			<td><textarea class="content"></textarea></td>
+			<td><textarea class="explation"></textarea></td>
+			<td><input type="text" class="option1"/></td>
+			<td><input type="text" class="option2"/></td>
+			<td><input type="text" class="option3"/></td>
+			<td ><input type="text"class="option4"/></td>			
 			<td><input type="button" class="btn-close" disabled/></td>		
 		</tr>
 	</tbody>
@@ -87,8 +85,35 @@ let now_test_category_no;
 selectTestCategoryList();
 //시험종류 검색
 $('.text.test').keyup(function(){
-	selectTestCategoryList(this.value);	
+	selectTestCategoryList(this.value);
+	
 });
+
+$('.text.test').change(function(){
+	console.log(this.value);
+	selectSubjectCategoryList(this.value);
+	$.ajax({
+			type : 'post',
+			url : 'category/selectSubjectCategoryList',
+			data : JSON.stringify({'test_category_seq':this.value,'subject_category':''}),
+			dataType : 'json',
+			contentType : 'application/json',
+			success : function(data){
+				let txt = '';
+				data.subjectCategoryList.forEach(function(item,idx){
+					txt += `<option class="subject_category ${item.subject_category_seq} list-group-item" >
+					${item.subject_category}
+					</option>`;
+				});
+				$('#subjectCaegoryList').empty();
+				$('#subjectCaegoryList').append(txt);
+			},
+			error : function(e){
+				console.log(e);		
+			}
+		});
+});
+
 
 
 
@@ -106,9 +131,10 @@ function selectTestCategoryList(keyword=''){
 					`<option 
 						class="test_category ${item.test_category_seq}" 
 						onclick="clickTestCategory(this)"
-						value="${item.test_category}"		
-						label="${item.test_category_seq}"			
-					/>
+						value="${item.test_category_seq}"			
+						>
+						${item.test_category}
+					</option>
 					`;
 				});
 				$('#testCategoryList').empty();
@@ -121,19 +147,54 @@ function selectTestCategoryList(keyword=''){
 }
 
 
+
+
+let nowSubjectList = [];
+let nowSubjectOptionList = '';
+function selectSubjectCategoryList(selectSubjectCategory,keyword=''){
+	
+		$.ajax({
+			type : 'post',
+			url : 'category/selectSubjectCategoryList',
+			data : JSON.stringify({'test_category_seq':selectSubjectCategory,'subject_category':keyword}),
+			dataType : 'json',
+			contentType : 'application/json',
+			success : function(data){
+				nowSubjectList = data.subjectCategoryList;
+				nowSubjectOptionList = '';
+				nowSubjectList.forEach(function(item,idx){
+					nowSubjectOptionList += `<option class="subject_category ${item.subject_category_seq} list-group-item" 
+					onclick="clickSubjectCategory(this)">
+					${item.subject_category}
+					</option>`;
+				});
+				$('.subjectSelector').empty();
+				$('.subjectSelector').append(nowSubjectOptionList);
+			},
+			error : function(e){
+				console.log(e);		
+			}
+		});
+}
+
 let lastNum = 1;
 $('#addBtn').click((e)=>{
 	lastNum += 1;
 	let txt = '';
-	txt += 		`<tr>
+	txt += 		
+		`<tr>
 			<td class="quiz_no">${lastNum}</td>
-			<td><select></select></td>
-			<td><textarea></textarea></td>
-			<td><textarea></textarea></td>
-			<td><input type="text"/></td>
-			<td><input type="text"/></td>
-			<td><input type="text"/></td>
-			<td><input type="text"/></td>		
+			<td>
+					<select class="subjectSelector">
+								${nowSubjectOptionList}	
+					</select>
+			</td>
+			<td><textarea class="content"></textarea></td>
+			<td><textarea class="explation"></textarea></td>
+			<td><input class="option1" type="text"/></td>
+			<td><input class="option2" type="text"/></td>
+			<td><input class="option3" type="text"/></td>
+			<td><input class="option4" type="text"/></td>		
 			<td><input type="button" class="btn-close" onclick="removeForm(this)"/></td>				
 		</tr>`;
 	$('tbody').append(txt);
@@ -148,6 +209,28 @@ const removeForm = (e) =>{
 		quiz_no[i].innerHTML = i+2;
 	}
 };
+
+
+
+let quizList = []
+$('#save').click(function(){
+	let trList = $('tbody tr');
+	console.log(trList);
+	for(i = 0 ; i < trList.length ; i ++){
+		let obj = {};
+		obj.quiz_index = i;
+		obj.subject_category_seq = trList[i].querySelector('.subjectSelector').value;
+		obj.content = trList[i].querySelector('.content').value;
+		obj.explation = trList[i].querySelector('.explation').value;
+		obj.option1 = trList[i].querySelector('.option1').value;
+		obj.option2 = trList[i].querySelector('.option2').value;
+		obj.option3 = trList[i].querySelector('.option3').value;
+		obj.option4 = trList[i].querySelector('.option4').value;
+		quizList.push(obj);
+
+	}
+	console.log(quizList);
+});
 
 
 </script>
