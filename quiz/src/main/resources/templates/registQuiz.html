@@ -89,6 +89,11 @@ $('.text.test').keyup(function(){
 	
 });
 
+
+/* jshint esversion: 6 */
+
+
+
 $('.text.test').change(function(){
 	console.log(this.value);
 	selectSubjectCategoryList(this.value);
@@ -101,7 +106,8 @@ $('.text.test').change(function(){
 			success : function(data){
 				let txt = '';
 				data.subjectCategoryList.forEach(function(item,idx){
-					txt += `<option class="subject_category ${item.subject_category_seq} list-group-item" >
+					txt += 
+					`<option class="subject_category ${item.subject_category_seq} list-group-item" >
 					${item.subject_category}
 					</option>`;
 				});
@@ -112,8 +118,7 @@ $('.text.test').change(function(){
 				console.log(e);		
 			}
 		});
-});
-
+})
 
 
 
@@ -125,7 +130,7 @@ function selectTestCategoryList(keyword=''){
 			dataType : 'json',
 			contentType : 'application/json',
 			success : function(data){
-				let txt = '';
+				let txt = '<option>--선택하세--</option>';
 				data.test_category_list.forEach(function(item,idx){
 					txt += 
 					`<option 
@@ -220,12 +225,12 @@ $('#save').click(function(){
 		let obj = {};
 		obj.quiz_index = i;
 		obj.subject_category_seq = trList[i].querySelector('.subjectSelector').value;
-		obj.content = trList[i].querySelector('.content').value;
-		obj.explation = trList[i].querySelector('.explation').value;
-		obj.option1 = trList[i].querySelector('.option1').value;
-		obj.option2 = trList[i].querySelector('.option2').value;
-		obj.option3 = trList[i].querySelector('.option3').value;
-		obj.option4 = trList[i].querySelector('.option4').value;
+		obj.quiz_content = trList[i].querySelector('.content').value;
+		obj.quiz_explation = trList[i].querySelector('.explation').value;
+		obj.quiz_option1 = trList[i].querySelector('.option1').value;
+		obj.quiz_option2 = trList[i].querySelector('.option2').value;
+		obj.quiz_option3 = trList[i].querySelector('.option3').value;
+		obj.quiz_option4 = trList[i].querySelector('.option4').value;
 		quizList.push(obj);
 
 	}

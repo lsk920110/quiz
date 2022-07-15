@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="quiz.bank.quiz.regist.mapper.RegistQuizMapper">
+
+	<insert id="registQuiz" parameterType="quiz.bank.quiz.regist.vo.QuizVO">
+	INSERT INTO
+		(
+		 TEST_SEQ
+		,TEST_CATEGORY_SEQ
+		,SUBJECT_CATEGORY_SEQ
+		,QUIZ_INDEX
+		,QUIZ_CONTENT
+		,QUIZ_EXPLATION
+		,QUIZ_TYPE
+		,QUIZ_POINT
+		,QUIZ_ANSWER
+		,USE_YN
+		)
+	VALUES
+		(
+		 #{test_seq}
+		,#{test_category_seq}
+		,#{subject_category_seq}
+		,#{quiz_index}
+		,#{quiz_content}
+		,#{quiz_explation}
+		,#{quiz_type}
+		,#{quiz_point}
+		,#{quiz_answer}
+		'Y'
+		)	
+	</insert>
+
+
+</mapper>
